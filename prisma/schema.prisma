@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  profilePhoto String?  // optional
+  location     String?  // optional
+  isPublic     Boolean  @default(true)
+  availability Availability[]
+
+  skillsOffered Skill[] @relation("SkillsOfferedByUser")
+  skillsWanted  Skill[] @relation("SkillsWantedByUser")
+
+  swapRequestsSent     Swap[] @relation("SentSwaps")
+  swapRequestsReceived Swap[] @relation("ReceivedSwaps")
+
+  profileConfigured Boolean @default(false)
+
+  createdAt     DateTime @default(now())
+}
+
+model Skill {
+  id       String   @id @default(cuid())
+  name     String
+  type     SkillType
+
+  ownerOfferedId String? // nullable to support either type
+  ownerWantedId  String?
+
+  offeredBy User? @relation("SkillsOfferedByUser", fields: [ownerOfferedId], references: [id])
+  wantedBy  User? @relation("SkillsWantedByUser", fields: [ownerWantedId], references: [id])
+}
+
+model Swap {
+  id          String   @id @default(cuid())
+  senderId    String
+  receiverId  String
+  sender      User     @relation("SentSwaps", fields: [senderId], references: [id])
+  receiver    User     @relation("ReceivedSwaps", fields: [receiverId], references: [id])
+  status      SwapStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+}
+
+enum SkillType {
+  OFFERED
+  WANTED
+}
+
+enum SwapStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
+enum Availability {
+  WEEKENDS
+  EVENINGS
+  WEEKDAYS
+}

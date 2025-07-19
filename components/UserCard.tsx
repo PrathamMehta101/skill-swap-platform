@@ -1,24 +1,9 @@
 "use client";
 
 import { sendSwapRequest } from "@/app/actions/swap.action";
+import { UserType } from "@/lib/propTypes";
 
-function UserCard({
-  user,
-}: {
-  user: {
-    id: string;
-    name: string;
-    skillsOffered: {
-      id: string;
-      name: string;
-      type: string;
-      ownerOfferedId: string | null;
-      ownerWantedId: string | null;
-    }[];
-  };
-}) {
-  console.log("in usercard component", user);
-  console.log("name of the user is ", user.name);
+function UserCard({ user }: { user: UserType }) {
   return (
     <div>
       <h1>WE HAVE, {user.name}</h1>

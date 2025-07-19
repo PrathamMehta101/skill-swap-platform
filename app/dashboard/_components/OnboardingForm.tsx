@@ -37,10 +37,10 @@ function OnboardingForm() {
     try {
       const res = await updateUserProfile(data);
 
-      if (res.success) {
+      if (res?.success) {
         console.log("Profile saved!");
       } else {
-        console.log("Error saving profile", res.error);
+        console.log("Error saving profile", res?.error);
       }
 
       const skills = data.skillsOffered.map((skill) => skill.value);

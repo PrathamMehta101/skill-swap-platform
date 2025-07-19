@@ -44,7 +44,7 @@ export async function updateUserProfile(data: unknown) {
   return { success: true };
 }
 
-export async function getAllUsers() {
+export async function getAllOtherUsers() {
   const { userId } = await auth();
   if (!userId) return;
 
@@ -57,7 +57,12 @@ export async function getAllUsers() {
     select: {
       id: true,
       name: true,
-      skillsOffered: true,
+      skillsOffered: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
   });
 

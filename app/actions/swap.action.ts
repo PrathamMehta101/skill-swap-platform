@@ -1,7 +1,9 @@
 "use server";
 
 import { prismaClient } from "@/lib/prismaClient";
+import { SwapType } from "@/lib/propTypes";
 import { auth } from "@clerk/nextjs/server";
+import { email, string } from "zod";
 
 export async function sendSwapRequest(receiverId: string) {
   const { userId: senderId } = await auth();
@@ -35,7 +37,13 @@ export async function getReceivedSwapRequests() {
       status: "PENDING",
     },
     include: {
-      sender: true,
+      sender: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -55,7 +63,13 @@ export async function getSentSwapRequests() {
       status: "PENDING",
     },
     include: {
-      receiver: true,
+      receiver: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -63,4 +77,42 @@ export async function getSentSwapRequests() {
   });
 
   return swapsSent;
+}
+
+export async function acceptSwapRequest(swapId: string) {
+  const { userId } = await auth();
+  if (!userId) return;
+
+  const swap = await prismaClient.swap.findUnique({
+    where: { id: swapId },
+  });
+
+  if (!swap?.id || swap.receiverId !== userId) return;
+
+  await prismaClient.swap.update({
+    where: { id: swapId },
+    data: {
+      status: "ACCEPTED",
+    },
+  });
+
+  return { status: "accepted" };
+}
+
+export async function rejectSwapRequest(swapId: string) {
+  const { userId } = await auth();
+  if (!userId) return;
+
+  const swap = await prismaClient.swap.findUnique({
+    where: { id: swapId },
+  });
+
+  if (!swap || swap.receiverId !== userId) return;
+
+  await prismaClient.swap.update({
+    where: { id: swapId },
+    data: { status: "REJECTED" },
+  });
+
+  return { status: "rejected" };
 }

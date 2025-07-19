@@ -1,13 +1,10 @@
-import { getAllUsers } from "@/app/actions/user.actions";
+import { UserType } from "@/lib/propTypes";
 import UserCard from "./UserCard";
 
-async function UserList() {
-  console.log("🟢 Inside userlist");
-  const users = await getAllUsers();
-
+function UserList({ userList }: { userList: UserType[] }) {
   return (
     <div>
-      {users.map((user, index) => {
+      {userList.map((user, index) => {
         console.log("USER", user, "INDEX", index);
         return <UserCard key={index} user={user} />;
       })}

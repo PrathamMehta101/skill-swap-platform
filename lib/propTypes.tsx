@@ -1,6 +1,7 @@
 export type UserType = {
   name: string;
   id: string;
+  availability: AvailabilityType;
   skillsOffered: {
     name: string;
     id: string;
@@ -19,3 +20,5 @@ export type SwapType = {
     email: string;
   };
 };
+
+export type AvailabilityType = ("WEEKDAYS" | "WEEKENDS" | "EVENINGS")[];

@@ -1,6 +1,7 @@
 "use client";
 
 import { updateUserProfile } from "@/app/actions/user.actions";
+import { AvailabilityType, UserType } from "@/lib/propTypes";
 import {
   availability,
   UserConfigurationForm,
@@ -12,16 +13,25 @@ import {
   setSkillsOffered,
 } from "@/store/slices/userSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 
-function OnboardingForm() {
+function OnboardingForm({
+  existingSkills,
+  details,
+}: {
+  existingSkills: string[] | undefined;
+  details: UserType | null | undefined;
+}) {
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const {
     register,
     control,
+    setValue,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<UserConfigurationForm>({
@@ -30,8 +40,6 @@ function OnboardingForm() {
       skillsOffered: [{ value: "" }],
     },
   });
-
-  const dispatch = useDispatch();
 
   async function onSubmit(data: UserConfigurationForm) {
     try {
@@ -59,6 +67,20 @@ function OnboardingForm() {
     control,
     name: "skillsOffered",
   });
+
+  useEffect(
+    function () {
+      setValue("name", details?.name as string);
+      setValue("availability", details?.availability as AvailabilityType);
+      setValue(
+        "skillsOffered",
+        details?.skillsOffered.map((skill) => ({
+          value: skill.name,
+        })) as { value: string }[]
+      );
+    },
+    [existingSkills, setValue]
+  );
 
   if (isSubmitting) return <p>SUBMITTING, WAIT MF</p>;
 
@@ -110,7 +132,8 @@ function OnboardingForm() {
       </div>
 
       <br />
-      <button type="submit">Save Profile</button>
+
+      <button type="submit">Save Details</button>
     </form>
   );
 }

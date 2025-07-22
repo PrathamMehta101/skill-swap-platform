@@ -1,9 +1,14 @@
+import { getUserDetails, getUserSkills } from "../actions/user.actions";
 import OnboardingForm from "./_components/OnboardingForm";
 
-function page() {
+async function page() {
+  const existingSkills = await getUserSkills();
+
+  const details = await getUserDetails();
+
   return (
     <div>
-      <OnboardingForm />
+      <OnboardingForm existingSkills={existingSkills} details={details} />
     </div>
   );
 }
